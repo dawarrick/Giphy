@@ -34,6 +34,11 @@ img {
    height: 50px;
 }
 
+.btn-info {
+  /* padding:10px;*/
+   margin:10px;
+}
+
 .option{
    color:blue;
    background-color:  rgb(231, 231, 167);
