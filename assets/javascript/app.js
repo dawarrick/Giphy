@@ -1,11 +1,12 @@
 //Javascript for the Trivia game
 //array of objects to provide questions and responses
-var topics = ["dogs", "60s TV", "70s TV", "80s TV"];
+var topics = ["dogs", "TV 1940s", "TV 1950s", "TV 1960s", "TV 1970s", "TV 1980s", "TV 1990s", "TV 2000s"];
+var topics1 = ["dogs", "cats", "horses", "pigs"];
 
 var queryURL = "https://api.giphy.com/v1/gifs/search?q=";
-var queryURL1 = "https://api.giphy.com/v1/gifs/search?q=dogs";
-var apiKey = "&api_key=vgOEml4vuRJzWg2AyhodhFKVjc8AEayP&limit=10";
-
+//var queryURL1 = "https://api.giphy.com/v1/gifs/search?q=dogs";
+var apiKey = "&api_key=vgOEml4vuRJzWg2AyhodhFKVjc8AEayP";
+var limit = 10;
 
 //loop through the topics array and display as buttons
 function createButtons() {
@@ -21,10 +22,8 @@ function createButtons() {
     optionBtn.addClass("btn btn-info");
     optionBtn.text(topics[i]);
     $("#buttonarea").append(optionBtn);
-    /*$("#displayarea").append("<br>");*/
   }
 }
-
 
 
 //display the still images
@@ -34,14 +33,19 @@ function displayGifs(gifobject) {
   //clear the question and display the result
   $("#gifarea").empty();
 
-  for (var i = 0; i < gifobject.data.length; i++) {
-
+  for (var i = 0; i < limit; i++) {
     /*createElement("<div>", "response", response, "#displayarea");*/
-
     //downsized.url, fixed_width_small_still.url. dowsized_still.url, fixed_width_small_still.url
-    if (gifobject.data[i].images.downsized_still.urlif !== undefined) {
-      var imgURL = gifobject.data[i].images.downsized_still.url;
-      var imgActionURL = gifobject.data[i].images.downsized.url;
+    //if (gifobject.data[i].images.downsized_still.url if !== "null") {
+    var imgURL = getImage("still", i, gifobject);
+    //console.log(imgURL);
+    var imgActionURL = getImage("active", i, gifobject);
+    //console.log(imgActionURL);
+    //console.log((imgURL !== "" && imgActionURL !== ""));
+
+    if (imgURL !== "null" && imgActionURL !== "null") {
+      //     var imgURL = gifobject.data[i].images.downsized_still.url;
+      //   var imgActionURL = gifobject.data[i].images.downsized.url;
       var image = $("<img>").attr("src", imgURL);
       image.addClass("gif");
       image.attr("still", "yes");
@@ -52,34 +56,83 @@ function displayGifs(gifobject) {
   }
 }
 
-
-//function will create an element based on parameters passed
-function createElement(type, addclass, text, location) {
-  var addOne = $(type);
-
-  if (addclass !== "") {
-    addOne.addClass(addclass);
+function getImage(imgType, i, gifobject) {
+  var returnURL = "null";
+  if (imgType == "still") {
+    //console.log(gifobject.data[i].images.downsized_still.url);
+    if (gifobject.data[i].images.hasOwnProperty("downsized_still")) {
+      if (gifobject.data[i].images.downsized_still.url !== "null") {
+        //console.log(gifobject.data[i].images.downsized_still.url);
+        return gifobject.data[i].images.downsized_still.url;
+      }
+    }
+    if (gifobject.data[i].images.hasOwnProperty("fixed_width_small_still")) {
+      if (gifobject.data[i].images.fixed_width_small_still.url !== "null") {
+        return gifobject.data[i].images.fixed_width_small_still.url;
+      }
+    }
   }
-  if (text !== "") {
-    addOne.text(text);
+  else
+    if (gifobject.data[i].images.hasOwnProperty("downsized")) {
+      if (gifobject.data[i].images.downsized.url !== "null") {
+        return gifobject.data[i].images.downsized.url;
+      }
+    }
+  if (gifobject.data[i].images.hasOwnProperty("fixed_width_small")) {
+    if (gifobject.data[i].images.fixed_width_small_still.url !== "null") {
+      return gifobject.data[i].images.fixed_width_small_still.url;
+    }
   }
-  $(location).append(addOne);
+  return returnURL;
 }
+
 
 
 //waiting on button clicks
 $(document).ready(function () {
 
   createButtons();
+  $("#search-value").on('click', function () {
+
+    event.preventDefault();
+
+    var search = $("#search-criteria").val().trim();
+    if (search == "null") {
+      alert("Please enter search criteria.");
+    }
+    else {
+      $.ajax({ url: queryURL + search + apiKey, method: 'GET', contentType: 'nosniff', responseType: 'nosniff' })
+        .done(function (giflist) {
+          //       console.log(giflist);
+          //       console.log(queryURL + $(this).attr("text") + apiKey);
+          if (giflist.data.length == 0) {
+            alert("Sorry, no results for that search");
+          }
+          else {
+            topics[topics.length] = search;
+            createButtons();
+            displayGifs(giflist);
+          }
+        });
+    }
+  });
+
+
 
   //populate the gifs when the cilck on a category button
   $("#buttonarea").on('click', '.btn-info', function () {
     //displayGifs($(this).attr("text"));
-    $.ajax({ url: queryURL + $(this).attr("searchstr") + apiKey, method: 'GET' })
+    var search = $(this).attr("searchstr") + "&limit=10";
+    $.ajax({ url: queryURL + search + apiKey, method: 'GET', contentType: 'nosniff', responseType: 'nosniff' })
       .done(function (giflist) {
-        console.log(giflist);
-        console.log(queryURL + $(this).attr("text") + apiKey);
-        displayGifs(giflist);
+        //       console.log(giflist);
+        //       console.log(queryURL + $(this).attr("text") + apiKey);
+        if (giflist.data.length == 0) {
+          alert("Sorry, no results for that search");
+        }
+        else {
+          displayGifs(giflist);
+        }
       });
   });
 

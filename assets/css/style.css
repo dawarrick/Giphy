@@ -8,7 +8,7 @@
     }
 
 img {
-   width:200px;
+   width:225px;
    height:200px;
    padding: 20px;
    }
@@ -29,10 +29,6 @@ img {
    font-size: 80px;
 }
 
-#timer{
-   color:black;
-   height: 50px;
-}
 
 .btn-info {
   /* padding:10px;*/
@@ -63,26 +59,10 @@ img {
    margin-top:10px;
  }
  
- .gameover{
-    font-size: 30px;
-    color: blue;
+ form {
+    float:right;
  }
 
- .gameoverhead{
-   font-size: 60px;
-   color: black;
-}
-
-.response{
-   font-size: 30px;
-   color: blue;
-}
-
-.question{
-   font-size: 30px;
-   color: red;
-   padding:10px;
-}
 
 @media (max-width: 640px) {
 	.container {
