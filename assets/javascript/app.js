@@ -4,9 +4,11 @@
 var topics = ["TV 1940s", "TV 1950s", "TV 1960s", "TV 1970s", "TV 1980s", "TV 1990s", "TV 2000s", "TV 2010s"];
 
 var queryURL = "https://api.giphy.com/v1/gifs/search?q=";
-
 //going to limit it to 10
 var apiKey = "&api_key=vgOEml4vuRJzWg2AyhodhFKVjc8AEayP&limit=10";
+//this will store an array of user entered search items in localstorage
+var topicsUser=[];
+var userCnt = 0;    //initialize variable to see if there are any initially in storage
 
 //loop through the topics array and display as buttons
 function createButtons() {
@@ -34,16 +36,16 @@ function displayGifs(gifobject) {
 
   for (var i = 0; i < gifobject.data.length; i++) {
 
-//get the rating for the image
+    //get the rating for the image
     var rating = gifobject.data[i].rating;
- //get the URL of a still image  
+    //get the URL of a still image  
     var imgURL = getImage("still", i, gifobject);
- //get the URL for the action version of the image 
+    //get the URL for the action version of the image 
     var imgActionURL = getImage("active", i, gifobject);
 
-//only display if both a still and action url are available
+    //only display if both a still and action url are available
     if (imgURL !== "null" && imgActionURL !== "null") {
-    
+
       //create a card for each image
       var card = createElement("<div>", "card", "", "#gifarea", "img-" + i);
       var cardTitle = createElement("<div>", "card-title", "Rating: " + rating, "#img-" + i, "");
@@ -84,7 +86,7 @@ function createElement(type, addclass, text, location, attrId) {
 function getImage(imgType, i, gifobject) {
   var returnURL = "null";
   if (imgType == "still") {
-//see if the images has the property for the particular image
+    //see if the images has the property for the particular image
     if (gifobject.data[i].images.hasOwnProperty("downsized_still")) {
       if (gifobject.data[i].images.downsized_still.url !== "null") {
         return gifobject.data[i].images.downsized_still.url;
@@ -110,17 +112,33 @@ function getImage(imgType, i, gifobject) {
   return returnURL;
 }
 
+function initialize() {
+  //see if they have previously been here and added items.
+  var topicsUserA = JSON.parse(localStorage.getItem('topicsLS'));
+  if (topicsUserA) {
+    topicsUser = topicsUserA;
+    //add any local store topics to the main array
+    for (var i = 0; i < topicsUser.length; i++) {
+      topics[topics.length] = topicsUser[i];
+    }
+    UserCnt = i;
+  }
+  //display the buttons from the array
+  console.log(userCnt);
+  createButtons();
+}
 
-//waiting on button clicks
+
+//waiting for everything to be ready
 $(document).ready(function () {
 
-//display the buttons from the array
-  createButtons();
+  //start
+  initialize();
 
   //if they enter in a new search criteri, add to array and populate
   $("#search-button").on('click', function () {
 
-//don't want the submit default refresh screen to trigger
+    //don't want the submit default refresh screen to trigger
     event.preventDefault();
 
     var search = $("#search-criteria").val().trim();
@@ -129,7 +147,7 @@ $(document).ready(function () {
       alert("Please enter search criteria, then hit submit.");
     }
     //see if it's already in the array.  This method should be case insensitive
-    else if (topics.findIndex(item => search.toLowerCase() === item.toLowerCase()) >=0) {
+    else if (topics.findIndex(item => search.toLowerCase() === item.toLowerCase()) >= 0) {
       alert("That subject is already in the list.");
     }
     else {
@@ -142,6 +160,10 @@ $(document).ready(function () {
           else {
             //add it to the array
             topics[topics.length] = search;
+            //add it to the local array 
+            topicsUser[topicsUser.length] = search;
+            //and save to storage
+            localStorage.setItem("topicsLS", JSON.stringify(topicsUser));
             //clear the entry field
             $("#search-criteria").val("");
             //redisplay the button
@@ -154,10 +176,9 @@ $(document).ready(function () {
   });
 
 
-
   //populate the gifs when the click on a category button
   $("#buttonarea").on('click', '.btn-info', function () {
-    
+
     var search = $(this).text();
 
     //I put in the nosniff because I was having lots of security issues at one time.
