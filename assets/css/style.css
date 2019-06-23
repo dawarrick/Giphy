@@ -8,8 +8,6 @@
       
     }
  
-
-
 .container {
    background-color:  rgb(231, 231, 167);
    padding-top:20px;
@@ -22,6 +20,10 @@
    padding-top:20px;
    padding-bottom:0;
    margin-bottom:0;
+}
+
+.searchcol {
+   float:right;
 }
 
 .gifrow {
@@ -41,3 +43,11 @@
    margin:10px;
 }
  
+@media (max-width: 1200px) {
+	.gifrow {
+      margin-top: 40px;
+      }
+   .searchcol {
+      float:clear;
+      }
+   }
