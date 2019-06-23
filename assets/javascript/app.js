@@ -1,24 +1,22 @@
-//Javascript for the Trivia game
-//array of objects to provide questions and responses
-var topics = ["dogs", "TV 1940s", "TV 1950s", "TV 1960s", "TV 1970s", "TV 1980s", "TV 1990s", "TV 2000s"];
-var topics1 = ["dogs", "cats", "horses", "pigs"];
+//Javascript for the Giphy
+
+//array of objects to provide starting topics
+var topics = ["TV 1940s", "TV 1950s", "TV 1960s", "TV 1970s", "TV 1980s", "TV 1990s", "TV 2000s", "TV 2010s"];
 
 var queryURL = "https://api.giphy.com/v1/gifs/search?q=";
-//var queryURL1 = "https://api.giphy.com/v1/gifs/search?q=dogs";
-var apiKey = "&api_key=vgOEml4vuRJzWg2AyhodhFKVjc8AEayP";
-var limit = 10;
+
+//going to limit it to 10
+var apiKey = "&api_key=vgOEml4vuRJzWg2AyhodhFKVjc8AEayP&limit=10";
 
 //loop through the topics array and display as buttons
 function createButtons() {
   $("#buttonarea").empty();
   //display buttons
-
   for (var i = 0; i < topics.length; i++) {
 
     //var optionBtn='<button type="button" class="btn btn-info">';
     var optionBtn = $("<button>");
     optionBtn.attr('type', 'button');
-    optionBtn.attr("searchstr", topics[i]);
     optionBtn.addClass("btn btn-info");
     optionBtn.text(topics[i]);
     $("#buttonarea").append(optionBtn);
@@ -30,39 +28,65 @@ function createButtons() {
 function displayGifs(gifobject) {
   var response = "";
 
-  //clear the question and display the result
+  //clear the area and display the result
   $("#gifarea").empty();
+  console.log(gifobject);
 
-  for (var i = 0; i < limit; i++) {
-    /*createElement("<div>", "response", response, "#displayarea");*/
-    //downsized.url, fixed_width_small_still.url. dowsized_still.url, fixed_width_small_still.url
-    //if (gifobject.data[i].images.downsized_still.url if !== "null") {
+  for (var i = 0; i < gifobject.data.length; i++) {
+
+//get the rating for the image
+    var rating = gifobject.data[i].rating;
+ //get the URL of a still image  
     var imgURL = getImage("still", i, gifobject);
-    //console.log(imgURL);
+ //get the URL for the action version of the image 
     var imgActionURL = getImage("active", i, gifobject);
-    //console.log(imgActionURL);
-    //console.log((imgURL !== "" && imgActionURL !== ""));
 
+//only display if both a still and action url are available
     if (imgURL !== "null" && imgActionURL !== "null") {
-      //     var imgURL = gifobject.data[i].images.downsized_still.url;
-      //   var imgActionURL = gifobject.data[i].images.downsized.url;
+    
+      //create a card for each image
+      var card = createElement("<div>", "card", "", "#gifarea", "img-" + i);
+      var cardTitle = createElement("<div>", "card-title", "Rating: " + rating, "#img-" + i, "");
+
+      //card image 
       var image = $("<img>").attr("src", imgURL);
       image.addClass("gif");
+      image.addClass("card-img-top");
+
+      //the "still" attribute will maintain which url is currently active
       image.attr("still", "yes");
+      //add the urls as attributes to the image for easy retrieval
       image.attr("stillURL", imgURL);
       image.attr("actionURL", imgActionURL);
-      $("#gifarea").append(image);
+      $("#img-" + i).append(image);
+
     }
   }
 }
 
+//function will create an element based on parameters passed
+function createElement(type, addclass, text, location, attrId) {
+  var addOne = $(type);
+
+  if (addclass !== "") {
+    addOne.addClass(addclass);
+  }
+  if (text !== "") {
+    addOne.text(text);
+  }
+  if (attrId !== "") {
+    addOne.attr('id', attrId);
+  }
+  $(location).append(addOne);
+}
+
+//get the image based on the type.  Not all images available, so have two options for each
 function getImage(imgType, i, gifobject) {
   var returnURL = "null";
   if (imgType == "still") {
-    //console.log(gifobject.data[i].images.downsized_still.url);
+//see if the images has the property for the particular image
     if (gifobject.data[i].images.hasOwnProperty("downsized_still")) {
       if (gifobject.data[i].images.downsized_still.url !== "null") {
-        //console.log(gifobject.data[i].images.downsized_still.url);
         return gifobject.data[i].images.downsized_still.url;
       }
     }
@@ -87,30 +111,42 @@ function getImage(imgType, i, gifobject) {
 }
 
 
-
 //waiting on button clicks
 $(document).ready(function () {
 
+//display the buttons from the array
   createButtons();
-  $("#search-value").on('click', function () {
 
+  //if they enter in a new search criteri, add to array and populate
+  $("#search-button").on('click', function () {
+
+//don't want the submit default refresh screen to trigger
     event.preventDefault();
 
     var search = $("#search-criteria").val().trim();
-    if (search == "null") {
-      alert("Please enter search criteria.");
+
+    if (search === "") {
+      alert("Please enter search criteria, then hit submit.");
+    }
+    //see if it's already in the array.  This method should be case insensitive
+    else if (topics.findIndex(item => search.toLowerCase() === item.toLowerCase()) >=0) {
+      alert("That subject is already in the list.");
     }
     else {
       $.ajax({ url: queryURL + search + apiKey, method: 'GET', contentType: 'nosniff', responseType: 'nosniff' })
         .done(function (giflist) {
-          //       console.log(giflist);
-          //       console.log(queryURL + $(this).attr("text") + apiKey);
+
           if (giflist.data.length == 0) {
             alert("Sorry, no results for that search");
           }
           else {
+            //add it to the array
             topics[topics.length] = search;
+            //clear the entry field
+            $("#search-criteria").val("");
+            //redisplay the button
             createButtons();
+            //display the gifs
             displayGifs(giflist);
           }
         });
@@ -119,15 +155,16 @@ $(document).ready(function () {
 
 
 
-  //populate the gifs when the cilck on a category button
+  //populate the gifs when the click on a category button
   $("#buttonarea").on('click', '.btn-info', function () {
-    //displayGifs($(this).attr("text"));
-    var search = $(this).attr("searchstr") + "&limit=10";
+    
+    var search = $(this).text();
+
+    //I put in the nosniff because I was having lots of security issues at one time.
     $.ajax({ url: queryURL + search + apiKey, method: 'GET', contentType: 'nosniff', responseType: 'nosniff' })
       .done(function (giflist) {
-        //       console.log(giflist);
-        //       console.log(queryURL + $(this).attr("text") + apiKey);
-        if (giflist.data.length == 0) {
+        // console.log(giflist);
+        if (giflist.data.length === 0) {
           alert("Sorry, no results for that search");
         }
         else {
@@ -136,7 +173,7 @@ $(document).ready(function () {
       });
   });
 
-  //when gif is clicked on, change from still to animate or vise-versa
+  //when gif is clicked on, change from still to animate or vice-versa
   $("#gifarea").on('click', '.gif', function () {
     if ($(this).attr("still") === "yes") {
       $(this).attr("src", $(this).attr("actionURL"));

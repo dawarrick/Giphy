@@ -23,10 +23,6 @@
   <div class="container">
 
     <div>
-      <!--h1 class="text-center">
-        <span class="head">GifTastic!</span>
-      </h1>
-    </div-->
 
       <!--Button display area-->
       <div class="row">
@@ -37,16 +33,19 @@
     </div>
 
 
-    <!--gif display area-->
-    <div class="row">
-        <div class="col-8">
-            <div id="gifarea"> </div>
-          </div>
+    <!--gif display area. will be populated from the js-->
+    <div id="gifrow" class="row" >
+      <div class="col-8">
+        <div id="gifarea" class="card-columns">        
+        </div>
+      </div>
+
       <div class="col-4" style="float:right">
         <form>
-          <span id="search-list"><strong></strong>Add a new search criteria</strong><br><input id="search-criteria" type="text" size="35">
+          <span id="search-list"><strong></strong>Add a new search criteria</strong><br><input id="search-criteria"
+              type="text" size="35">
             <br>
-            <input id="search-value" class="btn btn-info" value="Submit" type="submit"></span>
+            <input id="search-button" class="btn btn-info" value="Submit" type="submit"></span>
         </form>
       </div>
 
@@ -56,34 +55,6 @@
   <script src="assets/javascript/app.js"></script>
   </div>
 
-
-  <!--this is the form stuff to add more items
-  <form>
-    <span id="input-name">
-      Your Name: <input id="your-name" type="text">
-      <input id="save-name" value="Save" type="submit">
-    </span>
-  </form>
-
-  --this is for a card if I decide to go that route for the header.
-  <div class="col-lg-6">
-    <div class="card card-default">
-      <div class="card-header">
-        Most Recent Member
-      </div>
-      <div class="card-body" id="recent-member">
-        <h2 id="name-display">Jimmy John</h2>
-        <h4 id="email-display">Email: jimmy@john.edu</h4>
-        <h4 id="age-display">Age: 27</h4>
-        <p id="comment-display">I'm signing up, because I want to spread sandwiches to the world.</p>
-      </div>
-    </div>
-           <form>
-          <span id="search-list">Add a new search criteria: <input id="search-criteria" type="text">
-            <br>
-            <input id="search-value" class="btn btn-info" value="Submit" type="submit"></span>
-        </form>
-  </div-->
 </body>
 
 </html>
